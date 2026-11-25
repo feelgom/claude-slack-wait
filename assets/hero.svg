@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-label="A Slack reply wakes the waiting Claude Code session">
+  <rect width="1200" height="400" rx="24" fill="#14161c"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+    <rect x="64" y="84" width="440" height="232" rx="16" fill="#fff"/>
+    <text x="96" y="130" font-size="20" font-weight="700" fill="#5b6070"># platform</text>
+    <circle cx="116" cy="178" r="20" fill="#5b7cfa"/>
+    <text x="152" y="172" font-size="18" font-weight="700" fill="#14161c">You</text>
+    <text x="152" y="198" font-size="18" fill="#30343f">Option A or B for the migration?</text>
+    <circle cx="116" cy="258" r="20" fill="#f0a13a"/>
+    <text x="152" y="252" font-size="18" font-weight="700" fill="#14161c">Mina <tspan font-weight="400" fill="#5b6070">3 hours later</tspan></text>
+    <text x="152" y="278" font-size="18" fill="#30343f">B. Keep the old index for a week.</text>
+    <path d="M528 200h112" stroke="#8f97ab" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 14"/>
+    <path d="M644 184l20 16-20 16" fill="none" stroke="#8f97ab" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <rect x="688" y="84" width="448" height="232" rx="16" fill="#20242e" stroke="#3a4050"/>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="17">
+    <text x="716" y="132" fill="#9aa2b5">&gt; continue when Mina answers</text>
+    <text x="716" y="170" fill="#e8eaf0">Waiting on the thread.</text>
+    <text x="716" y="218" fill="#5fd39b">[claude-slack-wait] New replies: 1</text>
+    <text x="716" y="256" fill="#e8eaf0">Mina picked B. Updating the</text>
+    <text x="716" y="282" fill="#e8eaf0">migration plan…</text>
+  </g>
+</svg>

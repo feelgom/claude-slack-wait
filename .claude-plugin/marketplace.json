@@ -1,0 +1,18 @@
+{
+  "name": "claude-slack-wait",
+  "description": "Claude Code waits for a Slack reply, then picks the work back up in the same session",
+  "owner": {
+    "name": "feelgom",
+    "url": "https://github.com/feelgom"
+  },
+  "plugins": [
+    {
+      "name": "slack-wait",
+      "source": "./",
+      "description": "Wait for a Slack reply in the background and resume the same Claude Code session when it arrives",
+      "license": "MIT",
+      "homepage": "https://github.com/feelgom/claude-slack-wait",
+      "keywords": ["slack", "wait", "resume", "background", "reply"]
+    }
+  ]
+}
