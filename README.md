@@ -90,7 +90,7 @@ sequenceDiagram
     C->>U: resumes the work
 ```
 
-Claude Code wakes a session when one of its background commands finishes. The script finishes when there is something new, so nothing has to keep track of which session belongs to which thread. Background commands in an interactive terminal session [have no time limit](https://code.claude.com/docs/en/interactive-mode.md).
+Claude Code wakes a session when one of its background commands finishes. The script finishes when there is something new, so nothing has to keep track of which session belongs to which thread. Background commands in an interactive terminal session [have no time limit](https://code.claude.com/docs/en/interactive-mode.md). Sessions that Claude Code treats as unattended, such as T3 Code, Agent SDK apps and `claude -p`, [stop them after at most 2 hours](https://code.claude.com/docs/en/tools-reference.md#time-limit-for-background-commands). There the script ends each run a little earlier and Claude starts the next one, so the wait carries on.
 
 | Where | What wakes Claude |
 |---|---|
@@ -113,6 +113,7 @@ Your own messages and reactions are ignored. After the first reply it waits for 
 - Nothing is checked while your computer sleeps. Replies are not lost, only noticed later.
 - A reply is usually noticed within about two minutes.
 - Waking a long conversation costs the same as sending it a message.
+- In sessions with the 2-hour limit, Claude also wakes about every 2 hours to start the next run.
 - Claude Code may stop background commands when an idle machine is critically low on memory.
 
 ## Troubleshooting

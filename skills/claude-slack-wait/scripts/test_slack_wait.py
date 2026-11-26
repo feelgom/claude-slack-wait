@@ -30,7 +30,7 @@ class FindNew(unittest.TestCase):
 
 
 class Wait(unittest.TestCase):
-    def run_wait(self, results, hours=24):
+    def run_wait(self, results, hours=24, run_hours=None):
         clock = [0.0]
         calls = iter(results)
 
@@ -40,7 +40,7 @@ class Wait(unittest.TestCase):
                 raise item
             return item
 
-        return sw.wait(poll, 60, hours, sleep=lambda s: clock.__setitem__(0, clock[0] + s), now=lambda: clock[0])
+        return sw.wait(poll, 60, hours, run_hours, sleep=lambda s: clock.__setitem__(0, clock[0] + s), now=lambda: clock[0])
 
     def test_collects_until_quiet(self):
         one, two = (['a'], []), (['a', 'b'], [])
@@ -61,6 +61,12 @@ class Wait(unittest.TestCase):
     def test_timeout(self):
         self.assertEqual(self.run_wait([([], [])] * 10, hours=0.05), (3, None))
 
+    def test_run_ends_before_background_limit(self):
+        self.assertEqual(self.run_wait([([], [])] * 10, run_hours=0.05), (4, None))
+
+    def test_answer_found_at_run_end_is_kept(self):
+        self.assertEqual(self.run_wait([([], []), (['a'], []), (['a', 'b'], [])], run_hours=0.02), (0, (['a', 'b'], [])))
+
 
 class Links(unittest.TestCase):
     def test_thread_reply_link(self):
@@ -76,6 +82,7 @@ class Links(unittest.TestCase):
             command = sw.rearm_command(args, [msg('1730000200.000000', 'U_A')], ['-1:U_B'], ROOT)
         self.assertIn("'https://x.slack.com/archives/D1/p1730000000123456?a=1&b=2'", command)
         self.assertIn('--after 1730000200.000000 --conversation --seen=eyes:U_A,-1:U_B', command)
+        self.assertTrue(sw.rearm_command(args, [], [], ROOT, 21.5).endswith(f'--after {ROOT} --conversation --hours 21.50 --seen=eyes:U_A'))
 
 
 class Fetch(unittest.TestCase):

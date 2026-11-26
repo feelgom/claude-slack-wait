@@ -3,11 +3,12 @@
 
   slack_wait.py '<Slack message link>' [--conversation] [--after TS] [--seen=emoji:userID,...]
 
-Exit codes: 0 new reply or reaction, 2 Slack could not be read, 3 timed out
+Exit codes: 0 new reply or reaction, 2 Slack could not be read, 3 timed out, 4 no answer yet, start the next run
 """
 
 import argparse
 import json
+import os
 import re
 import shlex
 import subprocess
@@ -19,6 +20,10 @@ LINK = re.compile(r'(?P<workspace>https://[\w.-]+\.slack\.com)/archives/(?P<chan
 FATAL = re.compile(r'invalid_auth|not_authed|token_(expired|revoked)|account_inactive|channel_not_found|not_in_channel|thread_not_found|Message not found')
 MAX_FAILURES = 10
 MAX_SETTLE_POLLS = 5
+# Sessions Claude Code treats as unattended (T3 Code, Agent SDK apps, claude -p, cloud) stop a background
+# command after at most 2 hours, so there each run ends earlier and Claude starts the next one.
+NO_TIME_LIMIT = {'cli', 'claude-desktop', 'claude-vscode'}
+RUN_HOURS = 1.8
 
 
 class SlackError(Exception):
@@ -69,9 +74,12 @@ def find_new(messages, me, link_ts, after, seen):
     return replies, reactions
 
 
-def wait(poll, interval, hours, sleep=time.sleep, now=time.time):
-    """Return (0, content) once new content stops growing for one interval, (2, error) on failure, (3, None) on timeout."""
-    deadline = now() + hours * 3600  # Wall clock, so time asleep counts.
+def wait(poll, interval, hours, run_hours=None, sleep=time.sleep, now=time.time):
+    """Return (0, content) once new content stops growing for one interval, (2, error) on failure,
+    (3, None) when `hours` run out, and (4, None) when this run's `run_hours` run out first."""
+    start = now()
+    deadline = start + hours * 3600  # Wall clock, so time asleep counts.
+    run_end = min(deadline, start + run_hours * 3600) if run_hours else deadline
     failures, settle_polls, previous = 0, 0, None
     while True:
         try:
@@ -88,15 +96,19 @@ def wait(poll, interval, hours, sleep=time.sleep, now=time.time):
                 if previous == count or settle_polls >= MAX_SETTLE_POLLS:
                     return 0, current
             previous = count
-        if now() > deadline:
-            return 3, None
+        if now() > run_end:
+            if previous:  # Hand over what was found rather than drop it mid-settle.
+                return 0, current
+            return (3 if now() > deadline else 4), None
         sleep(interval)
 
 
-def rearm_command(args, replies, reactions, after):
+def rearm_command(args, replies, reactions, after, hours=None):
     command = [sys.argv[0], args.link, '--after', replies[-1]['ts'] if replies else after]
     if args.conversation:
         command.append('--conversation')
+    if hours:
+        command += ['--hours', f'{hours:.2f}']
     seen = [*args.seen, *reactions]
     if seen:
         command.append('--seen=' + ','.join(seen))  # '=' keeps the '-1' emoji from being read as an option
@@ -132,11 +144,17 @@ def main():
         users.update(found)
         return find_new(messages, me, link_ts, after, args.seen)
 
-    code, result = wait(poll, args.interval, args.hours)
+    run_hours = None if os.environ.get('CLAUDE_CODE_ENTRYPOINT') in NO_TIME_LIMIT else RUN_HOURS
+    started = time.time()
+    code, result = wait(poll, args.interval, args.hours, run_hours)
     if code == 2:
         print(f'[claude-slack-wait] Stopped because Slack could not be read: {result}\n{args.link}')
     elif code == 3:
         print(f'[claude-slack-wait] No answer in {args.hours:g} hours.\n{args.link}')
+    elif code == 4:
+        left = args.hours - (time.time() - started) / 3600
+        print(f'[claude-slack-wait] No answer yet. This run ends before the background time limit.\n{args.link}')
+        print(f'To keep waiting: {rearm_command(args, [], [], after, left)}')
     else:
         replies, reactions = result
         print(f'[claude-slack-wait] New replies: {len(replies)}, new reactions: {len(reactions)} — {args.link}')

@@ -90,7 +90,7 @@ sequenceDiagram
     C->>U: 작업 재개
 ```
 
-Claude Code는 백그라운드 명령이 끝나면 그 세션을 깨웁니다. 이 스크립트는 새 내용이 생겼을 때 끝나므로, 어느 세션이 어느 스레드를 기다리는지 따로 관리할 필요가 없습니다. 대화형 터미널 세션의 백그라운드 명령에는 [시간 제한이 없습니다](https://code.claude.com/docs/en/interactive-mode.md).
+Claude Code는 백그라운드 명령이 끝나면 그 세션을 깨웁니다. 이 스크립트는 새 내용이 생겼을 때 끝나므로, 어느 세션이 어느 스레드를 기다리는지 따로 관리할 필요가 없습니다. 대화형 터미널 세션의 백그라운드 명령에는 [시간 제한이 없습니다](https://code.claude.com/docs/en/interactive-mode.md). T3 Code, Agent SDK 앱, `claude -p`처럼 Claude Code가 무인으로 보는 세션은 [최대 2시간 뒤 멈춥니다](https://code.claude.com/docs/en/tools-reference.md#time-limit-for-background-commands). 이런 세션에서는 스크립트가 그보다 조금 먼저 실행을 끝내고 Claude가 다음 실행을 걸어 대기를 이어갑니다.
 
 | 위치 | Claude를 깨우는 것 |
 |---|---|
@@ -113,6 +113,7 @@ Claude Code는 백그라운드 명령이 끝나면 그 세션을 깨웁니다. �
 - 컴퓨터가 잠든 동안은 확인하지 않습니다. 답글을 놓치지는 않고 늦게 알아챌 뿐입니다.
 - 답글은 보통 2분 안에 알아챕니다.
 - 긴 대화를 깨우는 비용은 그 대화에 메시지를 하나 보내는 것과 같습니다.
+- 2시간 한도가 있는 세션에서는 다음 실행을 걸기 위해 약 2시간마다 Claude가 한 번 더 깨어납니다.
 - 유휴 상태에서 메모리가 심하게 부족하면 Claude Code가 백그라운드 명령을 멈출 수 있습니다.
 
 ## 문제 해결

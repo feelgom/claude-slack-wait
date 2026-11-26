@@ -90,7 +90,7 @@ sequenceDiagram
     C->>U: 继续工作
 ```
 
-后台命令结束时，Claude Code 会唤醒所属的会话。脚本在出现新内容时结束，因此无需记录哪个会话在等待哪个消息列。交互式终端会话中的后台命令[没有时间限制](https://code.claude.com/docs/en/interactive-mode.md)。
+后台命令结束时，Claude Code 会唤醒所属的会话。脚本在出现新内容时结束，因此无需记录哪个会话在等待哪个消息列。交互式终端会话中的后台命令[没有时间限制](https://code.claude.com/docs/en/interactive-mode.md)。在 T3 Code、Agent SDK 应用、`claude -p` 等被 Claude Code 视为无人值守的会话中，后台命令[最多运行 2 小时](https://code.claude.com/docs/en/tools-reference.md#time-limit-for-background-commands)。此时脚本会提前一点结束本次运行，由 Claude 启动下一次，等待得以继续。
 
 | 位置 | 什么会唤醒 Claude |
 |---|---|
@@ -113,6 +113,7 @@ sequenceDiagram
 - 电脑休眠期间不会检查。回复不会丢失，只是会晚一些发现。
 - 通常在两分钟左右发现回复。
 - 唤醒一个很长的对话，成本与向该对话发送一条消息相同。
+- 在有 2 小时限制的会话中，Claude 还会大约每 2 小时醒来一次，启动下一次运行。
 - 空闲时如果内存严重不足，Claude Code 可能会停止后台命令。
 
 ## 故障排除
